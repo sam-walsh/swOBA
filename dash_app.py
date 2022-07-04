@@ -1,6 +1,5 @@
 # Run this app with `python app.py` and
 # visit http://127.0.0.1:8050/ in your web browser.
-
 from dash import Dash, dash_table, html, dcc
 from dash.dependencies import Input, Output
 import plotly.express as px
@@ -59,6 +58,14 @@ PAGE_SIZE = 10
 
 
 app.layout = html.Div([
+    html.H1(children='sexwOBA: spray angle enhanced xwOBA'),
+    dcc.Slider(df['pa'].min(),
+        df['pa'].max(),
+        step=None,
+        value=100,
+        marks=None,
+        tooltip={"placement": "bottom", "always_visible": True},
+        id='pa-slider'),
     dash_table.DataTable(
         id='datatable-interactivity',
         columns=[
@@ -68,7 +75,7 @@ app.layout = html.Div([
         editable=True,
         filter_action="native",
         sort_action="native",
-        sort_mode="multi",
+        sort_mode="single",
         column_selectable="single",
         row_selectable="multi",
         row_deletable=True,
@@ -157,8 +164,38 @@ def update_graphs(rows, derived_virtual_selected_rows):
         # check if column exists - user may have deleted it
         # If `column.deletable=False`, then you don't
         # need to do this check.
-        for column in ["xwoba", "spray xwoba", "diff"] if column in dff
+        for column in ["diff"] if column in dff
     ]
+@app.callback(
+    Output('data-table-interactivity', 'figure'),
+    Input('pa-slider', 'value'))
+
+def update_table(selected_pa):
+    filtered_df = df[df.pa >= selected_pa]
+
+    fig = dash_table.DataTable(
+        id='datatable-interactivity',
+        columns=[
+            {"name": i, "id": i, "deletable": True, "selectable": True} for i in df.columns
+        ],
+        data=filtered_df.to_dict('records'),
+        editable=True,
+        filter_action="native",
+        sort_action="native",
+        sort_mode="single",
+        column_selectable="single",
+        row_selectable="multi",
+        row_deletable=True,
+        selected_columns=[],
+        selected_rows=[],
+        page_action="native",
+        page_current= 0,
+        page_size=PAGE_SIZE,
+    )
+
+    fig.update_layout(transition_duration=500)
+
+    return fig
 
 if __name__ == '__main__':
-    app.run_server(debug=True, host = '127.0.0.1')
+    app.run_server(debug=True, host = '127.0.0.1', dev_tools_hot_reload=False)
