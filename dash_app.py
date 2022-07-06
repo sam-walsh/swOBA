@@ -87,7 +87,7 @@ app.layout = html.Div([
     ),
     html.Div(id='datatable-interactivity-container'),
     html.H1(children='comparing xwoba and sexwoba'),
-
+    dcc.Input(type='search', placeholder='enter player name', list=df.batter_name.tolist()),
     dcc.Graph(
         id='example-graph',
         figure=fig
