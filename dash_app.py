@@ -13,7 +13,8 @@ app = Dash(__name__)
 df = pd.read_csv("spray_xwoba.csv")
 df = df.round(3)
 df.index = range(1, len(df) + 1)
-print(df.info())
+names = df.batter_name.unique().tolist()
+
 
 pitch_data = pd.read_csv("bbe.csv")
 
@@ -87,7 +88,11 @@ app.layout = html.Div([
     ),
     html.Div(id='datatable-interactivity-container'),
     html.H1(children='comparing xwoba and sexwoba'),
-    dcc.Input(type='search', placeholder='enter player name', list=df.batter_name.tolist()),
+    dcc.Dropdown(
+        id='dropdown',
+        options=[
+            {'label':i, 'value':i} for i in df['batter_name'].unique()
+        ]),
     dcc.Graph(
         id='example-graph',
         figure=fig
@@ -101,7 +106,11 @@ app.layout = html.Div([
         style={'display': 'inline-block'},
         figure=field_xwoba)]),
 ])
-
+@app.callback(Output('output', 'children'),
+          [Input('dropdown', 'value')])
+def update_output(value):
+    filtered_df = df[df['batter_name'] == value]
+    return filtered_df.iloc[0]['batter_name']
 
 @app.callback(
     Output('datatable-interactivity', 'style_data_conditional'),
@@ -167,7 +176,7 @@ def update_graphs(rows, derived_virtual_selected_rows):
         for column in ["diff"] if column in dff
     ]
 @app.callback(
-    Output('data-table-interactivity', 'figure'),
+    Output('datatable-interactivity', 'figure'),
     Input('pa-slider', 'value'))
 
 def update_table(selected_pa):
