@@ -2,3 +2,6 @@ venv
 *.pyc
 .DS_Store
 .venv
+.git
+README.md
+xstats_2022.ipynb
