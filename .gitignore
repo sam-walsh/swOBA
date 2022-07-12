@@ -1,8 +1,0 @@
-venv
-*.pyc
-.DS_Store
-.venv
-.git
-.gitattributes
-README.md
-xstats_2022.ipynb
